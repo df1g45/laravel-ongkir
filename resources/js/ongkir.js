@@ -1,4 +1,6 @@
-$('select[name="origin_province"]').on('change', function(){
+const { delay } = require("lodash");
+
+$('select[name="province_origin"]').on('change', function(){
     let provinceId = $(this).val();
 
     if(provinceId){
@@ -7,13 +9,34 @@ $('select[name="origin_province"]').on('change', function(){
             type: "GET",
             dataType: "JSON",
             success: function(data){
-                $('select[name="origin_city"]').empty();
+                $('select[name="city_origin"]').empty();
                 $.each(data, function(key, value){
-                    (`<option value="${key}"> ${value}</option>`);
+                    $('select[name="city_origin"]').append(`<option value="${key}"> ${value}</option>`);
                 })
             }
         })
     }else{
-        $('select[name="origin_city"]').empty();
+        $('select[name="city_origin"]').empty();
     }
 })
+
+$('#city_destination').select2({
+    ajax: {
+        url: '/api/cities',
+        type: "POST",
+        dataType: 'JSON',
+        delay: 150,
+        data: function (params){
+            return {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                search: $.trim(params.term)
+            }
+        },
+        processResults: function (response) {
+            return {
+                results : response
+            }
+        },
+        cache: true
+    }
+});
